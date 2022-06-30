@@ -1,5 +1,13 @@
-import { extendType, floatArg, idArg, nonNull, objectType, stringArg } from "nexus";
+import { arg, enumType, extendType, floatArg, idArg, nonNull, objectType, stringArg } from "nexus";
 
+export const Availability = enumType({
+    name: "Availability",
+    members: [ 
+        "AVAILABLE",
+        "CANCELLED",
+        "POSTPONED"
+    ]
+})
 
 export const Movie = objectType({
     name: "Movie",
@@ -7,9 +15,20 @@ export const Movie = objectType({
         t.nonNull.int("id");
         t.nonNull.string("title");
         t.nonNull.string("description");
-        t.nonNull.string("timeDuration");
+        t.nonNull.string("duration");
         t.nonNull.float("cost");
-    },
+        t.nonNull.dateTime("date");
+        t.nonNull.field("availability", { type: Availability });
+        t.nonNull.dateTime("time");
+        t.field("ticket", {
+            type: "Ticket",
+            resolve(parent, args, context) {
+                return context.prisma.ticket
+                    .findUnique({ where: { id: parent.id }})
+                    .movie()
+            }
+        })
+    }
 })
 
 export const MovieQuery = extendType({
@@ -21,21 +40,20 @@ export const MovieQuery = extendType({
                 return context.prisma.movie.findMany();
             }
         }),
-        t.nonNull.field("singleMovie", {
+        t.nonNull.field("movie", {
             type: "Movie",
             args: {
                 id: nonNull(idArg())
             },
             async resolve(_parent, args, context) {
-                const singleMovie = await context.prisma.movie.findUnique({
+                let movie = await context.prisma.movie.findUnique({
                     where: { id: parseInt(args.id)}
                 })
 
-                if (singleMovie === null) {
+                if (movie === null) {
                     throw new Error("The movie cannot be found!")
                 }
-
-                return singleMovie;
+                return movie;
             }
         })
     },
@@ -49,22 +67,27 @@ export const MovieMutation = extendType({
             args: {
                 title: nonNull(stringArg()),
                 description: nonNull(stringArg()),
-                timeDuration: nonNull(stringArg()),
+                duration: nonNull(stringArg()),
+                date: stringArg(),
+                time:  stringArg(),
+                availability: arg({ type: 'Availability', default: "AVAILABLE"}),
                 cost: nonNull(floatArg())
             },
             resolve(_parent, args, context) {
-                const { title, description, timeDuration, cost } = args;
 
-                const newMovie = context.prisma.movie.create({   
+                let movie = context.prisma.movie.create({   
                     data: {
-                        title,
-                        description,
-                        timeDuration,
-                        cost
+                        title: args.title,
+                        description: args.description,
+                        duration: args.duration,
+                        cost: args.cost,
+                        time: args.time as string,
+                        availability: args.availability as string,
+                        date: args.date as string
                     }
                 });
 
-                return newMovie;
+                return movie;
             }
         }),
         t.nonNull.field("updateMovie", {
@@ -73,21 +96,26 @@ export const MovieMutation = extendType({
                 id: nonNull(idArg()),
                 title: stringArg(),
                 description: stringArg(),
-                timeDuration: stringArg(),
-                cost: floatArg(),
+                duration: stringArg(),
+                date: stringArg(),
+                time:  stringArg(),
+                availability: arg({ type: 'Availability'}),
+                cost: floatArg()
             },
             async resolve(_parent, args, context) {
                 try {
-                    const updatedMovie = context.prisma.movie.update({
+                    const updatedMovie = await context.prisma.movie.update({
                         where: { id: parseInt(args.id) },
                         data: {
                             title: args.title || undefined,
                             description: args.description || undefined,
-                            timeDuration: args.timeDuration || undefined,
-                            cost: args.cost || undefined
+                            duration: args.duration || undefined,
+                            cost: args.cost || undefined,
+                            date: args.date || undefined,
+                            time: args.time || undefined,
+                            availability: args.availability || undefined
                         }
                     })
-
                     return updatedMovie;
                 } catch(err) {
                     throw new Error(`${err}`)
