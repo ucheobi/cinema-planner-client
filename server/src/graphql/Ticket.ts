@@ -80,6 +80,7 @@ export const TicketMutation = extendType({
             resolve(_parent, args, context) {
 
                 try {
+               
                     let ticket = context.prisma.ticket.create({
                         data: {
                             email: args.email,

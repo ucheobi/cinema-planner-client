@@ -2,6 +2,72 @@
 ### Do not make changes to this file directly
 
 
+enum Availability {
+  AVAILABLE
+  CANCELLED
+  POSTPONED
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+type Movie {
+  availability: Availability!
+  cost: Float!
+  date: DateTime!
+  description: String!
+  duration: String!
+  id: Int!
+  seat: Seat
+  ticket: Ticket
+  time: DateTime!
+  title: String!
+}
+
+type Movies {
+  movies: [Movie]!
+}
+
+type Mutation {
+  bookTicket(active: Boolean!, createdAt: String, email: String!, firstName: String!, lastName: String!, movieId: Int!, ticketType: TicketType = SINGLE, totalCost: Float!): Ticket!
+  createMovie(availability: Availability = AVAILABLE, cost: Float!, date: String, description: String!, duration: String!, time: String, title: String!, totalSeat: Int!): Movie!
+  deleteMovie(id: ID!): Movie!
+  deleteTicket(id: ID!): Ticket!
+  updateMovie(availability: Availability, cost: Float, date: String, description: String, duration: String, id: ID!, time: String, title: String): Movie!
+  updateTicket(active: Boolean, createdAt: String, email: String, firstName: String, id: ID!, lastName: String, movieId: ID, ticketType: TicketType = SINGLE, totalCost: Float): Ticket!
+}
+
 type Query {
-  ok: Boolean!
+  movie(id: ID!): Movie!
+  movies: [Movie!]!
+  ticket(id: ID!): Ticket!
+  tickets: [Ticket!]!
+}
+
+type Seat {
+  availableSeat: Int!
+  id: Int!
+  movie: Movie
+  seatNumbers: [Int]!
+  totalSeat: Int!
+}
+
+type Ticket {
+  active: Boolean!
+  createdAt: DateTime!
+  email: String!
+  firstName: String!
+  id: Int!
+  lastName: String!
+  movieId: Movie!
+  ticketType: Ticket!
+  totalCost: Float!
+}
+
+enum TicketType {
+  COUPLES
+  FAMILY
+  SINGLE
 }

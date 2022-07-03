@@ -10,10 +10,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+model Ticket {
+  id Int @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email String @unique
+  ticketType  String
+  active  Boolean
+  createdAt DateTime @default(now())
+  totalCost Float
+  seatNumber  Int[]
+  seatPosition  String
+  numberOfPersons Int
+  movie Movie @relation(fields: [movieId], references: [id])
+  movieId Int @unique
+}
+
 model Movie {
   id  Int @id @default(autoincrement())
-  title String
+  title String  @unique
   description   String
-  duration  DateTime
+  date  DateTime 
+  duration  String
+  time  DateTime
   cost  Float
+  availability String 
+  seats  Seat? 
+  ticket  Ticket?
 }
+
+model Seat {
+  id  Int @id @default(autoincrement())
+  seatNumbers  Int[]
+  totalSeat Int
+  availableSeat Int
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId Int @unique
+}
+
+
