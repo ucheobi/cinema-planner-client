@@ -1,5 +1,5 @@
+import { prisma } from "@prisma/client";
 import { arg, enumType, extendType, floatArg, idArg, intArg, list, nonNull, objectType, stringArg } from "nexus";
-import { Seat } from "./Seat";
 
 
 export const Availability = enumType({
@@ -22,34 +22,17 @@ export const Movie = objectType({
         t.nonNull.dateTime("date");
         t.nonNull.field("availability", { type: Availability });
         t.nonNull.dateTime("time");
-        t.field("ticket", {
+        t.nonNull.list.field("tickets", {
             type: "Ticket",
-            resolve(parent, _args, context) {
-                return context.prisma.ticket
+            resolve(parent, args, ctx) {
+                return ctx.prisma.movie
                     .findUnique({ where: { id: parent.id }})
-                    .movie()
-            }
-        }),
-        t.field("seat", {
-            type: "Seat",
-            resolve(parent, _args, context) {
-                return context.prisma.seat
-                    .findUnique({
-                        where: { id: parent.id }
-                    })
+                    .tickets()
             }
         })
     }
 })
 
-export const Movies = objectType({
-    name: "Movies", 
-    definition(t) {
-        t.nonNull.list.field("movies", {
-            type: Movie
-        })
-    },
-})
 
 export const MovieQuery = extendType({
     type: "Query", 
@@ -57,7 +40,7 @@ export const MovieQuery = extendType({
         t.nonNull.list.nonNull.field("movies", {
             type: "Movie",
             resolve(_parent, _args, context) {
-                return context.prisma.movie.findMany();
+                return context.prisma.movie.findMany() 
             }
         }),
         t.nonNull.field("movie", {
@@ -66,11 +49,8 @@ export const MovieQuery = extendType({
                 id: nonNull(idArg())
             },
             async resolve(_parent, args, context) {
-                let movie = await context.prisma.movie.findUnique({
+                let movie = await context.prisma.movie.findUniqueOrThrow({
                     where: { id: parseInt(args.id)},
-                    include: {
-                        seats: true
-                    }
                 })
 
                 if (movie === null) {
@@ -91,16 +71,12 @@ export const MovieMutation = extendType({
                 title: nonNull(stringArg()),
                 description: nonNull(stringArg()),
                 duration: nonNull(stringArg()),
-                date: stringArg(),
-                time:  stringArg(),
+                date: nonNull(stringArg()),
+                time:  nonNull(stringArg()),
                 availability: arg({ type: 'Availability', default: "AVAILABLE"}),
                 cost: nonNull(floatArg()),
-                totalSeat: nonNull(intArg()),
             },
             async resolve(_parent, args, context) {
-                
-                let capacity = args.totalSeat;
-                let seatArray = [...Array(capacity).keys()].map(i => i + 1);
 
                 let movie = await context.prisma.movie.create({   
                     data: {
@@ -108,19 +84,9 @@ export const MovieMutation = extendType({
                         description: args.description,
                         duration: args.duration,
                         cost: args.cost,
-                        time: args.time as string,
+                        time: args.time as string | Date,
                         availability: args.availability as string,
-                        date: args.date as string,
-                        seats: {
-                            create: {
-                                totalSeat: args.totalSeat,
-                                availableSeat: capacity,
-                                seatNumbers: seatArray,            
-                            }
-                        } 
-                    },
-                    include: {
-                        seats: true
+                        date: args.date as string | Date
                     }
                 });
 

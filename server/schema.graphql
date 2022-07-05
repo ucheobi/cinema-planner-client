@@ -20,19 +20,14 @@ type Movie {
   description: String!
   duration: String!
   id: Int!
-  seat: Seat
-  ticket: Ticket
+  tickets: [Ticket]!
   time: DateTime!
   title: String!
 }
 
-type Movies {
-  movies: [Movie]!
-}
-
 type Mutation {
-  bookTicket(active: Boolean!, createdAt: String, email: String!, firstName: String!, lastName: String!, movieId: Int!, ticketType: TicketType = SINGLE, totalCost: Float!): Ticket!
-  createMovie(availability: Availability = AVAILABLE, cost: Float!, date: String, description: String!, duration: String!, time: String, title: String!, totalSeat: Int!): Movie!
+  bookTicket(active: Boolean!, createdAt: String!, email: String!, firstName: String!, lastName: String!, movieId: Int!, seatNumber: Int!, seatPosition: SeatType = NORMAL, ticketType: TicketType = SINGLE, totalCost: Float!): Ticket!
+  createMovie(availability: Availability = AVAILABLE, cost: Float!, date: String!, description: String!, duration: String!, time: String!, title: String!): Movie!
   deleteMovie(id: ID!): Movie!
   deleteTicket(id: ID!): Ticket!
   updateMovie(availability: Availability, cost: Float, date: String, description: String, duration: String, id: ID!, time: String, title: String): Movie!
@@ -42,16 +37,21 @@ type Mutation {
 type Query {
   movie(id: ID!): Movie!
   movies: [Movie!]!
-  ticket(id: ID!): Ticket!
+  ticket(id: Int!): Ticket!
   tickets: [Ticket!]!
 }
 
 type Seat {
-  availableSeat: Int!
   id: Int!
-  movie: Movie
-  seatNumbers: [Int]!
-  totalSeat: Int!
+  seatNumber: Int!
+  seatPosition: SeatType!
+  ticket: Ticket
+}
+
+enum SeatType {
+  NORMAL
+  VIP
+  VVIP
 }
 
 type Ticket {
@@ -61,7 +61,8 @@ type Ticket {
   firstName: String!
   id: Int!
   lastName: String!
-  movieId: Movie!
+  movieId(movieId: Int!): Movie!
+  seat: Seat
   ticketType: Ticket!
   totalCost: Float!
 }

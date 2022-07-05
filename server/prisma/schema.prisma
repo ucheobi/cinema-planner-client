@@ -15,16 +15,14 @@ model Ticket {
   id Int @id @default(autoincrement())
   firstName String
   lastName  String
-  email String @unique
+  email String
   ticketType  String
   active  Boolean
   createdAt DateTime @default(now())
   totalCost Float
-  seatNumber  Int[]
-  seatPosition  String
-  numberOfPersons Int
-  movie Movie @relation(fields: [movieId], references: [id])
-  movieId Int @unique
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId Int 
+  seat  Seat?
 }
 
 model Movie {
@@ -36,17 +34,15 @@ model Movie {
   time  DateTime
   cost  Float
   availability String 
-  seats  Seat? 
-  ticket  Ticket?
+  tickets  Ticket[]
 }
 
 model Seat {
   id  Int @id @default(autoincrement())
-  seatNumbers  Int[]
-  totalSeat Int
-  availableSeat Int
-  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
-  movieId Int @unique
+  seatNumber  Int
+  seatPosition  String
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId Int @unique
 }
 
 
