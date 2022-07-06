@@ -11,6 +11,20 @@ export const Availability = enumType({
     ]
 })
 
+export const MovieGenres = enumType({
+    name: "MovieGenres", 
+    members: [
+        "ROMANCE",
+        "ACTION",
+        "COMEDY",
+        "HORROR",
+        "SciFi",
+        "THRILLER",
+        "CRIME",
+        "DRAMA"
+    ]
+})
+
 export const Movie = objectType({
     name: "Movie",
     definition(t) {
@@ -18,13 +32,14 @@ export const Movie = objectType({
         t.nonNull.string("title");
         t.nonNull.string("description");
         t.nonNull.string("duration");
+        t.nonNull.field("genre", { type: MovieGenres });
         t.nonNull.float("cost");
         t.nonNull.dateTime("date");
         t.nonNull.field("availability", { type: Availability });
         t.nonNull.dateTime("time");
         t.nonNull.list.field("tickets", {
             type: "Ticket",
-            resolve(parent, args, ctx) {
+            resolve(parent, _args, ctx) {
                 return ctx.prisma.movie
                     .findUnique({ where: { id: parent.id }})
                     .tickets()
@@ -71,6 +86,7 @@ export const MovieMutation = extendType({
                 title: nonNull(stringArg()),
                 description: nonNull(stringArg()),
                 duration: nonNull(stringArg()),
+                genre: arg({ type: 'MovieGenres', default: "ACTION"}),
                 date: nonNull(stringArg()),
                 time:  nonNull(stringArg()),
                 availability: arg({ type: 'Availability', default: "AVAILABLE"}),
@@ -83,6 +99,7 @@ export const MovieMutation = extendType({
                         title: args.title,
                         description: args.description,
                         duration: args.duration,
+                        genre: args.genre as string,
                         cost: args.cost,
                         time: args.time as string | Date,
                         availability: args.availability as string,
@@ -99,6 +116,7 @@ export const MovieMutation = extendType({
                 id: nonNull(idArg()),
                 title: stringArg(),
                 description: stringArg(),
+                genre: stringArg(),
                 duration: stringArg(),
                 date: stringArg(),
                 time:  stringArg(),
@@ -114,6 +132,7 @@ export const MovieMutation = extendType({
                             title: args.title || undefined,
                             description: args.description || undefined,
                             duration: args.duration || undefined,
+                            genre: args.genre || undefined,
                             cost: args.cost || undefined,
                             date: args.date || undefined,
                             time: args.time || undefined,

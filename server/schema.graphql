@@ -2,6 +2,11 @@
 ### Do not make changes to this file directly
 
 
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
 enum Availability {
   AVAILABLE
   CANCELLED
@@ -19,18 +24,32 @@ type Movie {
   date: DateTime!
   description: String!
   duration: String!
+  genre: MovieGenres!
   id: Int!
   tickets: [Ticket]!
   time: DateTime!
   title: String!
 }
 
+enum MovieGenres {
+  ACTION
+  COMEDY
+  CRIME
+  DRAMA
+  HORROR
+  ROMANCE
+  SciFi
+  THRILLER
+}
+
 type Mutation {
   bookTicket(active: Boolean!, createdAt: String!, email: String!, firstName: String!, lastName: String!, movieId: Int!, seatNumber: Int!, seatPosition: SeatType = NORMAL, ticketType: TicketType = SINGLE, totalCost: Float!): Ticket!
-  createMovie(availability: Availability = AVAILABLE, cost: Float!, date: String!, description: String!, duration: String!, time: String!, title: String!): Movie!
+  createMovie(availability: Availability = AVAILABLE, cost: Float!, date: String!, description: String!, duration: String!, genre: MovieGenres = ACTION, time: String!, title: String!): Movie!
   deleteMovie(id: ID!): Movie!
   deleteTicket(id: ID!): Ticket!
-  updateMovie(availability: Availability, cost: Float, date: String, description: String, duration: String, id: ID!, time: String, title: String): Movie!
+  login(email: String!, password: String!): AuthPayload!
+  signup(email: String!, firstName: String!, lastName: String!, password: String!, role: Role = USER): AuthPayload!
+  updateMovie(availability: Availability, cost: Float, date: String, description: String, duration: String, genre: String, id: ID!, time: String, title: String): Movie!
   updateTicket(active: Boolean, createdAt: String, email: String, firstName: String, id: ID!, lastName: String, movieId: ID, ticketType: TicketType = SINGLE, totalCost: Float): Ticket!
 }
 
@@ -39,6 +58,11 @@ type Query {
   movies: [Movie!]!
   ticket(id: Int!): Ticket!
   tickets: [Ticket!]!
+}
+
+enum Role {
+  ADMIN
+  USER
 }
 
 type Seat {
@@ -62,6 +86,7 @@ type Ticket {
   id: Int!
   lastName: String!
   movieId(movieId: Int!): Movie!
+  owner: User
   seat: Seat
   ticketType: Ticket!
   totalCost: Float!
@@ -71,4 +96,14 @@ enum TicketType {
   COUPLES
   FAMILY
   SINGLE
+}
+
+type User {
+  email: String!
+  firstName: String!
+  id: Int!
+  lastName: String!
+  password: String!
+  role: Role!
+  tickets: [Ticket!]!
 }

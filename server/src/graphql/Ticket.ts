@@ -20,6 +20,14 @@ export const Ticket = objectType({
         t.nonNull.boolean("active");
         t.nonNull.dateTime("createdAt");
         t.nonNull.float("totalCost");
+        t.field("owner", {
+            type: "User",
+            resolve(parent, args, context) {
+                return context.prisma.ticket
+                    .findUniqueOrThrow({ where: {id: parent.id }})
+                    .owner()
+            }
+        })
         t.nonNull.field("movieId", {
             type: "Movie",
             args: {
@@ -61,9 +69,8 @@ export const TicketQuery = extendType({
             args: {
                 id: nonNull(intArg())
             },
-            //@ts-ignore
             async resolve(_parent, args, context) {
-                let ticket = await context.prisma.ticket.findUniqueOrThrow({
+                const ticket = await context.prisma.ticket.findUniqueOrThrow({
                     where: { id: args.id }
                 });                  
 
@@ -96,8 +103,22 @@ export const TicketMutation = extendType({
                 seatNumber: nonNull(intArg()), 
             },
             async resolve(_parent, args, context) {
-                try {    
-                    let ticket = await context.prisma.ticket.create({
+                try {  
+                    const { userId } = context;  
+
+                    if (!userId) {
+                        throw new Error("Please login or create an account");
+                    }
+
+                    const seats = await context.prisma.seat.findMany({});
+
+                    const foundSeat = seats.find(seat => seat.seatNumber === args.seatNumber);
+
+                    if (seats && foundSeat) {
+                        throw new Error("Sorry, that Seat Number is already RESERVED!!!")
+                    }
+                    
+                    const ticket = await context.prisma.ticket.create({
                         data: {
                             email: args.email,
                             firstName: args.firstName,
@@ -105,9 +126,16 @@ export const TicketMutation = extendType({
                             ticketType: args.ticketType as string,
                             active: args.active,
                             createdAt: args.createdAt as Date | string,
-                            totalCost: args.totalCost,                 
+                            totalCost: args.totalCost, 
+                            owner: {
+                                connect: {
+                                    id: userId
+                                }
+                            } ,               
                             movie: {
-                                connect: {id: args.movieId },
+                                connect: {
+                                    id: args.movieId 
+                                },
                             }, 
                             seat: {
                                 create: {
