@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "dev": "ts-node-dev --transpile-only --no-notify --exit-child server/src/index.ts",
-    "generate": "ts-node --transpile-only src/schema.ts"
+    "start": "ts-node-dev --transpile-only --no-notify --exit-child server/index.ts",
+    "server": "ts-node-dev --transpile-only --no-notify --exit-child server/index.ts",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "keywords": [],
   "author": "",
