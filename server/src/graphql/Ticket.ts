@@ -33,7 +33,7 @@ export const Ticket = objectType({
             args: {
                 movieId: nonNull(intArg())
             },
-            //@ts-ignore
+
             resolve(_parent, args, context) {
                  return context.prisma.movie
                     .findUnique({ where: { id: args.movieId }})
@@ -41,7 +41,6 @@ export const Ticket = objectType({
         });
         t.field("seat", {
             type: "Seat",
-            //@ts-ignore
             resolve(parent, _args, context) {
                 return context.prisma.ticket
                     .findUnique({

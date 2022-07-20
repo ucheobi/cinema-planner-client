@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --transpile-only --no-notify --exit-child src/index.ts",
+    "dev": "ts-node-dev --transpile-only --no-notify --exit-child index.ts",
     "generate": "ts-node --transpile-only src/schema.ts"
   },
   "author": "Anota Uche",

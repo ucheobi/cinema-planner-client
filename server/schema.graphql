@@ -29,6 +29,7 @@ type Movie {
   tickets: [Ticket]!
   time: DateTime!
   title: String!
+  url: String!
 }
 
 enum MovieGenres {
@@ -44,12 +45,12 @@ enum MovieGenres {
 
 type Mutation {
   bookTicket(active: Boolean!, createdAt: String!, email: String!, firstName: String!, lastName: String!, movieId: Int!, seatNumber: Int!, seatPosition: SeatType = NORMAL, ticketType: TicketType = SINGLE, totalCost: Float!): Ticket!
-  createMovie(availability: Availability = AVAILABLE, cost: Float!, date: String!, description: String!, duration: String!, genre: MovieGenres = ACTION, time: String!, title: String!): Movie!
+  createMovie(availability: Availability = AVAILABLE, cost: Float!, date: String!, description: String!, duration: String!, genre: MovieGenres = ACTION, time: String!, title: String!, url: String!): Movie!
   deleteMovie(id: ID!): Movie!
   deleteTicket(id: ID!): Ticket!
   login(email: String!, password: String!): AuthPayload!
   signup(email: String!, firstName: String!, lastName: String!, password: String!, role: Role = USER): AuthPayload!
-  updateMovie(availability: Availability, cost: Float, date: String, description: String, duration: String, genre: String, id: ID!, time: String, title: String): Movie!
+  updateMovie(availability: Availability, cost: Float, date: String, description: String, duration: String, genre: String, id: ID!, time: String, title: String, url: String): Movie!
   updateTicket(active: Boolean, createdAt: String, email: String, firstName: String, id: ID!, lastName: String, movieId: ID, ticketType: TicketType = SINGLE, totalCost: Float): Ticket!
 }
 

@@ -34,6 +34,7 @@ export const Movie = objectType({
         t.nonNull.string("duration");
         t.nonNull.field("genre", { type: MovieGenres });
         t.nonNull.float("cost");
+        t.nonNull.string("url");
         t.nonNull.dateTime("date");
         t.nonNull.field("availability", { type: Availability });
         t.nonNull.dateTime("time");
@@ -88,6 +89,7 @@ export const MovieMutation = extendType({
                 duration: nonNull(stringArg()),
                 genre: arg({ type: 'MovieGenres', default: "ACTION"}),
                 date: nonNull(stringArg()),
+                url: nonNull(stringArg()),
                 time:  nonNull(stringArg()),
                 availability: arg({ type: 'Availability', default: "AVAILABLE"}),
                 cost: nonNull(floatArg()),
@@ -101,6 +103,7 @@ export const MovieMutation = extendType({
                         duration: args.duration,
                         genre: args.genre as string,
                         cost: args.cost,
+                        url: args.url,
                         time: args.time as string | Date,
                         availability: args.availability as string,
                         date: args.date as string | Date
@@ -119,6 +122,7 @@ export const MovieMutation = extendType({
                 genre: stringArg(),
                 duration: stringArg(),
                 date: stringArg(),
+                url: stringArg(),
                 time:  stringArg(),
                 availability: arg({ type: 'Availability'}),
                 cost: floatArg(),
@@ -135,6 +139,7 @@ export const MovieMutation = extendType({
                             genre: args.genre || undefined,
                             cost: args.cost || undefined,
                             date: args.date || undefined,
+                            url: args.url || undefined,
                             time: args.time || undefined,
                             availability: args.availability || undefined,
                         }
