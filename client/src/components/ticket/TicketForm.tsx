@@ -4,12 +4,10 @@ import styled from "styled-components";
 import Joi from "joi";
 import { Button } from "../Button";
 import { joiResolver } from "@hookform/resolvers/joi";
-
-enum TicketType {
-    SINGLE = 'SINGLE',
-    COUPLE = 'COUPLE',
-    FAMILY = 'FAMILY'
-}
+import { useAppSelector, useAppDispatch } from "../../redux/hooks";
+import { Ticket, TicketType } from "../../types";
+import { useNavigate } from "react-router-dom";
+import { setTicket } from "../../redux/features/ticket/ticketSlice";
 
 interface IFormInputs {
   firstName: string;
@@ -93,30 +91,42 @@ const Important = styled.span`
 `
 
 const Submit = styled.span`
-    width: 60%;
     display: flex;
+    width: 80%;
     padding: 5px;
-    margin: 20px 2px 2px 170px;
-    justify-content: space-between;
-    text-align: right;
+    margin: 20px auto;
 `;
 
 const AsterikMessage = styled.span`
   margin-left: 10rem;
   font-size: 8px;
   text-align: center;
-`
+`;
 
 const TicketForm = () => {
   const { register, handleSubmit, formState: { errors } } = useForm<IFormInputs>({ 
     resolver: joiResolver(schema)
   });
-  const onSubmit = (data: IFormInputs) => console.log(data); 
+
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+
+  const StyledLink = {
+    width: "100%",
+    marginRight: "10px"
+  }
+
+  const onSubmitHandler = (data: Ticket) => {
+    dispatch(setTicket(data));
+    navigate('/movie/ticket/available-seats');
+  }
+
 
   return (
     <FormContainer>
       <Header>Ticket Owner's Details</Header>
-      <Form onSubmit={handleSubmit(onSubmit)}>
+      <Form>
         <InputContainer>
           <Label>First Name:</Label>
           <Input {...register("firstName")} placeholder='First Name' type='text' /> 
@@ -139,7 +149,7 @@ const TicketForm = () => {
           <Label>Ticket Type:</Label>
           <SelectInput {...register("ticketType")} placeholder='Ticket Type' defaultValue={TicketType.SINGLE}>
             <SelectOption value='SINGLE'>SINGLE</SelectOption>
-            <SelectOption value='COUPLE' >COUPLE</SelectOption>
+            <SelectOption value='COUPLE'>COUPLE</SelectOption>
             <SelectOption value='FAMILY'>FAMILY</SelectOption>
           </SelectInput>      
         </InputContainer>
@@ -147,8 +157,8 @@ const TicketForm = () => {
         <AsterikMessage>* indicates required fields</AsterikMessage> 
 
         <Submit>
-          <Button type="submit">Choose Seat</Button>
-          <Button type="submit" color="secondary">Back</Button>
+          <Button type='submit' handleSubmit={handleSubmit(onSubmitHandler)}>Choose Seat</Button>
+          <Button type="button" color="secondary">Back</Button>
         </Submit>    
       </Form>
     </FormContainer> 

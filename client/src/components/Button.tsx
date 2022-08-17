@@ -11,11 +11,11 @@ export type ButtonProps = {
 
 const ButtonContainer = styled.button<ButtonProps>`
     cursor: pointer;
-    width: 45%;
+    width: 55%;
     padding: 10px 20px;
     border: none;
     border-radius: 4px;
-    font-weight: 500;
+    font-weight: 600;
     outline: none;
     transition: all 0.2s;
     ${({ color }) => color && COLOR[color] };
@@ -41,7 +41,7 @@ const COLOR = {
     `,
     success: css`
     color: #fff;
-    background: #0476e0;
+    background: rgb(241, 179, 7);
     &:hover {
       transform: scale(0.98);
       transition: 0.15s;

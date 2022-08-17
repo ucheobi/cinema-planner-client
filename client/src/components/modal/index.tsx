@@ -9,7 +9,7 @@ import { Button } from "../Button";
 import { showModal } from "../../redux/features/movie/modalSlice";
 import { useAppDispatch } from "../../redux/hooks";
 import { AUTH_TOKEN } from "../../constant";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 const MainModal = styled.section`
@@ -60,7 +60,7 @@ const ButtonContainer = styled.div`
     justify-content: space-between;
 `
 
-const QUERY_SINGLE_MOVIE = gql`
+export const QUERY_SINGLE_MOVIE = gql`
   query MovieQuery($movieId: ID!){
     movie(id: $movieId)    
       {
@@ -90,7 +90,7 @@ const MovieModal = ({movieId}: MovieID) => {
     if (loading) return <p>Loading ...</p>
     if (!data) return <p>No data</p> 
     
-    const link = token ? "/movie/id/ticket/" : "/user/profile";
+    const link = token ? "/movie/ticket/" : "/user/profile";
 
     const StyledLink = {
         width: "90%",
@@ -119,7 +119,13 @@ const MovieModal = ({movieId}: MovieID) => {
                         </MovieDetails>
                         <ButtonContainer>
                             <Link to={link} style={StyledLink}>
-                                <Button type="button" color="primary" handleSubmit={() => dispatch(showModal(false))}>Book Ticket</Button> 
+                                <Button 
+                                    type="button" 
+                                    color="primary" 
+                                    handleSubmit={() => dispatch(showModal(false))}
+                                >
+                                    Book Ticket
+                                </Button> 
                             </Link>
                             <Button type="button" color="secondary" handleSubmit={() => dispatch(showModal(false))}>Back</Button> 
                         </ButtonContainer>
